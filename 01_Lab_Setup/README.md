@@ -19,7 +19,7 @@ To safely execute live malware (EICAR) and offensive tools without risking exter
 *   **Gateway:** `10.10.10.1`
 
 ![Logical Network Topology Diagram](../Images/Setup_Network_Topology.png)
-> **Note:** The logical network topology diagram (Figure 3) demonstrates the routing of logs from the asset to the SIEM while isolating the attacker on the edge.
+> **Note:** The logical network topology diagram demonstrates the routing of logs from the asset to the SIEM while isolating the attacker on the edge.
 
 ## Baseline Installation Overview
 
