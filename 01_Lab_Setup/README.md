@@ -161,7 +161,7 @@ The status of the service can be verified using:
 sudo systemctl status wazuh-agent
 ```
 
-![Wazuh Agent Status](../Images/Setup_Agent_Status.png)
+![Wazuh Agent Status](../Images/Setup_Agent_Active.png)
 
 Once connected, the Wazuh Agent forwards endpoint telemetry and security events to the central SIEM.
 
