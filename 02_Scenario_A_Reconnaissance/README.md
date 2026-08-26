@@ -216,6 +216,9 @@ Detection Lag = Alert Time - Flow Start Time
 | 4    | `22:14:11.943` | `22:14:10.335`  | **1.608 seconds** |
 | 5    | `22:14:11.839` | `22:14:10.310`  | **1.529 seconds** |
 
+![MTTD Proof Table](../Images/Scenario_A_MTTD_Proof.png)
+>  Empirical log timestamps extracted from Wazuh/Suricata demonstrating the millisecond-level calculation behind the 1.27 seconds average Mean Time to Detect.
+
 ## Average Mean Time to Detect
 
 The five detection measurements were used to calculate the average Mean Time to Detect.
