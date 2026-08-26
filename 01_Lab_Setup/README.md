@@ -290,6 +290,8 @@ sudo systemctl status auditd
 
 The `auditd` integration forms the foundation for the File Integrity Monitoring scenario demonstrated later in this project.
 
+![Auditd Active Status](../Images/Setup_Auditd_Status.png)
+
 # Defence-in-Depth Architecture
 
 The completed laboratory environment combines several complementary security technologies.
