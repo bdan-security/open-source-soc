@@ -103,7 +103,7 @@ Successful ICMP responses confirmed that the systems could communicate correctly
 
 ---
 
-# 2. Centralised SIEM Deployment — Wazuh Manager
+# 2. Centralised SIEM Deployment: Wazuh Manager
 
 The Wazuh Manager was installed on the machine with the following IP address:
 
@@ -137,7 +137,7 @@ Following installation, the Wazuh Dashboard provides centralised visibility into
 
 ---
 
-# 3. Endpoint Monitoring — Wazuh Agent
+# 3. Endpoint Monitoring: Wazuh Agent
 
 To monitor the SME asset, the Wazuh Agent was installed on the Ubuntu 22.04 Headless system.
 
@@ -181,7 +181,7 @@ This endpoint visibility provides the foundation for several of the attack detec
 
 ---
 
-# 4. Network Detection Integration — Suricata NIDS
+# 4. Network Detection Integration: Suricata NIDS
 
 Suricata was selected as the Network Intrusion Detection System (NIDS).
 
@@ -220,7 +220,7 @@ Suricata forms the primary network detection layer used in the reconnaissance sc
 
 ---
 
-# 5. Deception Layer — Cowrie Honeypot
+# 5. Deception Layer: Cowrie Honeypot
 
 Cowrie was deployed as the deception technology layer within the security architecture.
 
@@ -273,7 +273,7 @@ The collected activity is later used in the honeypot and brute-force attack scen
 
 ---
 
-# 6. Kernel-Level Auditing — auditd
+# 6. Kernel-Level Auditing: auditd
 
 To support high-fidelity File Integrity Monitoring, the Linux Auditing System (`auditd`) was installed on the monitored asset.
 
@@ -310,7 +310,7 @@ The `auditd` integration forms the foundation for the File Integrity Monitoring 
 
 ---
 
-# 🛡️ Defence-in-Depth Architecture
+# Defence-in-Depth Architecture
 
 The completed laboratory environment combines several complementary security technologies.
 
@@ -327,7 +327,7 @@ The architecture provides multiple layers of security visibility rather than rel
 
 ---
 
-# 🔄 Security Telemetry Flow
+# Security Telemetry Flow
 
 The general flow of activity within the laboratory is illustrated below:
 
@@ -379,7 +379,7 @@ The general flow of activity within the laboratory is illustrated below:
 
 ---
 
-# 📊 Deployment Outcome
+# Deployment Outcome
 
 The successful deployment of the laboratory created an isolated security environment capable of supporting:
 
@@ -398,7 +398,7 @@ The completed environment forms the foundation for the remaining attack and defe
 
 ---
 
-# 🔗 Next Steps
+# Next Steps
 
 With the infrastructure successfully deployed, the following scenarios demonstrate how the integrated security controls detect and respond to simulated attacker activity.
 
