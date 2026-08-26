@@ -63,9 +63,8 @@ The reconnaissance activity identified exposed services, including:
 * SSH on Port `22`
 * Administrative SSH on Port `2222`
 
->  Kali Linux executing a SYN scan against the SME asset to identify exposed network services.
-
 ![Nmap Port Scan](../Images/Scenario_A_Nmap_Scan.png)
+>  Kali Linux executing a SYN scan against the SME asset to identify exposed network services.
 
 # Detection & Telemetry
 
@@ -187,9 +186,8 @@ The central Wazuh platform then processes and correlates the event.
 
 This allows the reconnaissance activity to be investigated through the SIEM rather than requiring direct analysis of the Suricata sensor.
 
->  The Wazuh dashboard successfully detecting and classifying the Nmap port scan as a network security alert.
-
 ![Wazuh Nmap Detection](../Images/Scenario_A_Wazuh_Detection.png)
+>  The Wazuh dashboard successfully detecting and classifying the Nmap port scan as a network security alert.
 
 # Performance Metrics - Mean Time to Detect (MTTD)
 
