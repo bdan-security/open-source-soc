@@ -31,6 +31,8 @@ The lab relies on three primary physical machines configured on a localised and 
 | **SME-Asset-Agent**   | Dell OptiPlex 3040 | 16GB DDR3 (1600 MHz) | Ubuntu 22.04 Headless | `10.10.10.90`  |
 | **Attacker**          | Lenovo Laptop      | 8GB DDR4 (2400 MHz)  | Kali Linux            | `10.10.10.100` |
 
+![Physical Lab Setup](../Images/Setup_Physical_Lab.jpg)
+
 The use of legacy hardware was intentional. The objective was to evaluate whether an effective security architecture could be deployed without requiring expensive enterprise infrastructure.
 
 # Network Segmentation
