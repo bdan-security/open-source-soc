@@ -1,8 +1,8 @@
-# 🛠️ Lab Environment & Architecture Setup
+# Lab Environment & Architecture Setup
 
 To prove that enterprise-grade security can be achieved without massive capital investment, this architecture was built entirely on repurposed, legacy hardware. The environment simulates a typical constrained Small to Medium Enterprise (SME) setup.
 
-## 💻 Hardware Specifications
+## Hardware Specifications
 
 The lab relies on three primary machines configured on a localized, isolated network:
 
@@ -12,16 +12,16 @@ The lab relies on three primary machines configured on a localized, isolated net
 | **SME-Asset-Agent** | Dell Optiplex 3040 | 16GB DDR3 (1600 MHz) | Ubuntu 22.04 Headless | `10.10.10.90` |
 | **Attacker** | Lenovo Laptop | 8GB DDR4 (2400 MHz) | Kali Linux | `10.10.10.100` |
 
-## 🕸️ Network Segmentation
+## Network Segmentation
 
 To safely execute live malware (EICAR) and offensive tools without risking external networks, the lab was physically isolated using a dedicated TP-Link router.
 *   **Subnet:** `10.10.10.0/24`
 *   **Gateway:** `10.10.10.1`
 
-*(Insert Image: Logical Network Topology Diagram)*
+![Logical Network Topology Diagram](../Images/Lab.png)
 > **Note:** The logical network topology diagram (Figure 3) demonstrates the routing of logs from the asset to the SIEM while isolating the attacker on the edge.
 
-## ⚙️ Baseline Installation Overview
+## Baseline Installation Overview
 
 Before executing attack scenarios, the baseline infrastructure was established:
 1.  **Wazuh Manager:** Installed on the Ubuntu 24.04 desktop to act as the centralized SIEM and Active Response command center.
