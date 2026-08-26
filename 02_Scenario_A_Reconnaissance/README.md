@@ -191,7 +191,7 @@ This allows the reconnaissance activity to be investigated through the SIEM rath
 
 ![Wazuh Nmap Detection](../Images/Scenario_A_Wazuh_Detection.png)
 
-# Performance Metrics — Mean Time to Detect (MTTD)
+# Performance Metrics - Mean Time to Detect (MTTD)
 
 The Mean Time to Detect (MTTD) was measured to determine how quickly the architecture detected network reconnaissance activity.
 
