@@ -46,23 +46,6 @@ From the attacker's perspective, the connection was abruptly severed. Hydra fail
 ![Attacker View: Attack Blocked](../Images/Scenario_C_Attacker_View.png)
 > The Kali Linux terminal showing the brute-force tool failing and all subsequent network traffic (ICMP pings) being dropped by the target.
 
-## Performance Metrics: Mean Time to Respond (MTTR)
-
-To measure the effectiveness of the automated containment, both the **Mean Time to Detect (MTTD)** and **Mean Time to Respond (MTTR)** were calculated. The MTTR represents the total time from the start of the attack until the firewall actively dropped the attacker's IP.
-
-| **Test** | **Alert Time** | **AR Trigger Time** | **Detection Lag (MTTD)** | **Response Time (MTTR)** |
-| -------- | -------------- | ------------------- | ------------------------ | ------------------------ |
-| **1**    | `23:01:14`     | `23:01:15`          | ~ **2.1 seconds**        | ~ **3.4 seconds**        |
-| **2**    | `23:05:42`     | `23:05:43`          | ~ **1.9 seconds**        | ~ **2.9 seconds**        |
-| **3**    | `23:12:05`     | `23:12:06`          | ~ **2.4 seconds**        | ~ **3.7 seconds**        |
-
-* **Average MTTD:** **2.13 seconds**
-* **Average MTTR:** **3.33 seconds**
-* **Verdict:** **Superior**. The architecture successfully neutralized an active brute-force campaign in under 4 seconds, practically eliminating the window of opportunity for credential compromise.
-
-![Empirical log timestamps](../Scenario_C_MTTR_Proof.png)
-> Empirical log timestamps demonstrating the rapid sequence from initial detection to automated firewall containment.
-
 ## Next Steps
 
 * [**← Return to Scenario B: Deception Technology**](../03_Scenario_B_Deception_Honeypot)
