@@ -206,7 +206,7 @@ The Suricata eve.json logs were then integrated into the Wazuh Agent by adding a
 ![Integrate Wazuh with Suricata](../Images/integrating%20wazuh%20with%20suricata.png)
 > Configuring the Wazuh Agent to natively ingest Suricata's JSON event logs.
 
-![Wazuh is successfully integrated with Suricata](../Images/suricata%20was%20successfull%20integrated%20with%20wazuh.jpg)
+![Wazuh is successfully integrated with Suricata](../Images/suricata%20was%20successfull%20integrated%20with%20wazuh.png)
 > Verification in the Wazuh Discover dashboard showing successful ingestion and parsing of Suricata alerts.
 
 # 5. Deception Layer: Cowrie Honeypot
