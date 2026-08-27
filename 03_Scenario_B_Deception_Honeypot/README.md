@@ -39,7 +39,7 @@ ssh root@10.10.10.90
 ```
 
 ![Figure B.1](../Images/Scenario_B_Cowrie_Interaction.png)
-> **Figure B.1:** The Kali Linux attacker successfully connects to port `22`, unaware that the connection has been transparently redirected into the Cowrie deception environment.
+> The Kali Linux attacker successfully connects to port `22`, unaware that the connection has been transparently redirected into the Cowrie deception environment.
 
 The attacker therefore believes they are interacting with the production SSH service, while the actual interaction is being handled by the honeypot.
 
@@ -95,7 +95,7 @@ To capture Cowrie's structured output, the local Wazuh agent configuration file 
 Once configured, the Wazuh agent dynamically reads each security event, forwards it to the manager, and normalizes the attributes for SIEM visualization:
 
 ![Figure B.2](../Images/Scenario_B_Wazuh_Cowrie_Logs.png)
-> **Figure B.2:** Raw Cowrie event logs successfully ingested and indexed by the Wazuh SIEM, demonstrating attacker activity tracking and metadata extraction.
+> Raw Cowrie event logs successfully ingested and indexed by the Wazuh SIEM, demonstrating attacker activity tracking and metadata extraction.
 
 ## Performance Metrics: Mean Time to Detect (MTTD)
 
