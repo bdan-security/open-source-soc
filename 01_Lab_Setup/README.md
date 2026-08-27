@@ -256,9 +256,17 @@ cowrie start
 
 ![Cowrie Honeypot Start](../Images/Setup_Cowrie_Start.png)
 
-The Cowrie honeypot provides an additional layer of visibility by recording attacker interactions within a controlled environment.
+The Wazuh Agent was then configured to ingest the Cowrie JSON logs (cowrie.json).
 
-The collected activity is later used in the honeypot and brute-force attack scenarios.
+![Forwarding Cowrie Logs](../Images/forwarding%20cowrie%20logs%20to%20wazuh.png)
+> Adding the Cowrie log location path block to the Wazuh Agent's ossec.conf.
+
+Finally, custom rules were engineered on the Wazuh Manager to parse and trigger alerts based on the incoming honeypot telemetry.
+
+![Cowrie Wazuh Rules](../Images/adding%20custom%20rules%20in%20wazuh%20manager%20for%20cowrie.png)
+> Creating custom correlation rules in local_rules.xml to flag malicious honeypot interactions.
+
+The Cowrie honeypot provides an additional layer of visibility by recording attacker interactions within a controlled environment. The collected activity is later used in the honeypot and brute-force attack scenarios.
 
 # 6. Kernel-Level Auditing: auditd
 
