@@ -80,6 +80,20 @@ Wazuh Manager / SIEM
         ▼
 Detection & Alerting
 ```
+### Wazuh Agent Log Collection Configuration
+
+To capture Cowrie's structured output, the local Wazuh agent configuration file (`/var/ossec/etc/ossec.conf`) was updated to monitor the JSON log path:
+
+```xml
+<ossec_config>
+  <localfile>
+    <log_format>json</log_format>
+    <location>/home/cowrie/cowrie/var/log/cowrie/cowrie.json</location>
+  </localfile>
+</ossec_config>
+```
+Once configured, the Wazuh agent dynamically reads each security event, forwards it to the manager, and normalizes the attributes for SIEM visualization:
+
 ![Figure B.2](../Images/Scenario_B_Wazuh_Cowrie_Logs.png)
 > **Figure B.2:** Raw Cowrie event logs successfully ingested and indexed by the Wazuh SIEM, demonstrating attacker activity tracking and metadata extraction.
 
