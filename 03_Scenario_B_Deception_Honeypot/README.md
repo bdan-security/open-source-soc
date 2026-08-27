@@ -38,7 +38,7 @@ From the **Kali Linux attacker machine** (`10.10.10.100`), an attack was launche
 ssh root@10.10.10.90
 ```
 
-../Images/Scenario_B_Cowrie_Interaction.png
+![Figure B.1](../Images/Scenario_B_Cowrie_Interaction.png)
 > **Figure B.1:** The Kali Linux attacker successfully connects to port `22`, unaware that the connection has been transparently redirected into the Cowrie deception environment.
 
 The attacker therefore believes they are interacting with the production SSH service, while the actual interaction is being handled by the honeypot.
@@ -80,7 +80,7 @@ Wazuh Manager / SIEM
         ▼
 Detection & Alerting
 ```
-../Images/Scenario_B_Wazuh_Cowrie_Logs.png
+![Figure B.2](../Images/Scenario_B_Wazuh_Cowrie_Logs.png)
 > **Figure B.2:** Raw Cowrie event logs successfully ingested and indexed by the Wazuh SIEM, demonstrating attacker activity tracking and metadata extraction.
 
 ## Performance Metrics: Mean Time to Detect (MTTD)
