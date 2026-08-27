@@ -12,7 +12,7 @@ From the Kali Linux attacker machine (`10.10.10.100`), a dictionary-based brute-
 # Executing a brute-force attack against the administrative SSH port
 hydra -l srv-admin -P /usr/share/wordlists/fasttrack ssh://10.10.10.90:22 -t 4
 ````
-![Configuring ossec.conf](../Images/Scenario_C_Hydra_Attack.png)
+![Hydra Brute force attack](../Images/Scenario_C_Hydra_Attack.png)
 > The Kali Linux attacker aggressively cycling through credentials in an attempt to breach the administrative SSH service.
 
 ## Detection & Automated Containment
