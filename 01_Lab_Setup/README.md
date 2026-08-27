@@ -202,7 +202,15 @@ sudo suricata -T -c /etc/suricata/suricata.yaml -v
 
 Successful configuration validation confirmed that Suricata could load its configuration and detection rules correctly.
 
-Suricata forms the primary network detection layer used in the reconnaissance scenario documented later in this repository.
+To tailor the detection to the specific lab scenarios, custom rules were engineered into /etc/suricata/rules/local.rules.
+
+Custom Suricata rules designed to detect Nmap port scans, brute-force attempts on the honeypot, and specific malware downloads.
+
+The Suricata eve.json logs were then integrated into the Wazuh Agent by adding a <localfile> block to the ossec.conf file.
+
+Configuring the Wazuh Agent to natively ingest Suricata's JSON event logs.
+
+Verification in the Wazuh Discover dashboard showing successful ingestion and parsing of Suricata alerts.
 
 # 5. Deception Layer: Cowrie Honeypot
 
