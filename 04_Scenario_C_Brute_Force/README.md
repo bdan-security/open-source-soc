@@ -12,8 +12,8 @@ From the Kali Linux attacker machine (`10.10.10.100`), a dictionary-based brute-
 # Executing a brute-force attack against the administrative SSH port
 hydra -l srv-admin -P /usr/share/wordlists/rockyou.txt ssh://10.10.10.90:2222
 ````
-
-> **Figure C.1:** The Kali Linux attacker aggressively cycling through credentials in an attempt to breach the administrative SSH service.
+![Hydra Brute Force Attack](../Images/Scenario_C_Hydra_Attack.png)
+> The Kali Linux attacker aggressively cycling through credentials in an attempt to breach the administrative SSH service.
 
 ## Detection & Automated Containment
 
@@ -27,11 +27,13 @@ Rather than relying on manual analyst intervention, the SIEM was configured to e
 2. **Execution:** The Wazuh Manager issues a command to the Wazuh Agent on the target asset.
 3. **Containment:** The agent runs the `firewall-drop` script, dynamically adding the attacker's IP (`10.10.10.100`) to the local UFW/iptables blocklist.
 
-> **Figure C.2:** The Wazuh dashboard flagging the authentication failures and confirming the execution of the Active Response firewall-drop script.
+![Wazuh Brute Force Detection](../Images/Scenario_C_Wazuh_Detection.png)
+> The Wazuh dashboard flagging the authentication failures and confirming the execution of the Active Response firewall-drop script.
 
-> **Figure C.3:** Verification from the asset's terminal showing the local firewall successfully dropping all further traffic from the attacker's IP address.
+![Attacker IP Blocked](../Images/Scenario_C_Active_Response_Block.png)
+> Verification from the asset's terminal showing the local firewall successfully dropping all further traffic from the attacker's IP address.
 
-## 📊 Performance Metrics: Mean Time to Respond (MTTR)
+## Performance Metrics: Mean Time to Respond (MTTR)
 
 To measure the effectiveness of the automated containment, both the **Mean Time to Detect (MTTD)** and **Mean Time to Respond (MTTR)** were calculated. The MTTR represents the total time from the start of the attack until the firewall actively dropped the attacker's IP.
 
@@ -45,8 +47,8 @@ To measure the effectiveness of the automated containment, both the **Mean Time 
 * **Average MTTR:** **3.33 seconds**
 * **Verdict:** **Superior**. The architecture successfully neutralized an active brute-force campaign in under 4 seconds, practically eliminating the window of opportunity for credential compromise.
 
-
-> **Figure C.4:** Empirical log timestamps demonstrating the rapid sequence from initial detection to automated firewall containment.
+![MTTR Proof Table](../Images/Scenario_C_MTTR_Proof.png)
+> Empirical log timestamps demonstrating the rapid sequence from initial detection to automated firewall containment.
 
 ## Next Steps
 
