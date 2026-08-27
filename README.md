@@ -2,18 +2,18 @@
 
 This repository contains the practical implementation of an integrated, zero-cost cybersecurity architecture designed for Small and Medium-sized Enterprises (SMEs). By orchestrating Wazuh (SIEM), Suricata (NIDS), and Cowrie (Honeypot), this lab demonstrates how to achieve enterprise-grade threat detection and automated remediation on heavily constrained hardware.
 
-## 🚀 Tech Stack
+## Tech Stack
 *   **SIEM / Host Intrusion Detection:** Wazuh
 *   **Network Intrusion Detection (NIDS):** Suricata
 *   **Deception Technology:** Cowrie Honeypot
 *   **Offensive Tools:** Kali Linux, Nmap, Hydra, EICAR Payload
 
-## 📊 Performance Highlights
+## Performance Highlights
 *   **Near Real-Time Detection**: Achieved a Mean Time to Detect (MTTD) of 1.27 seconds for network reconnaissance and under 1.39 seconds for active honeypot exploitation.
 *   **Instant Automated Remediation**: Achieved a Mean Time to Respond (MTTR) of 97 milliseconds for automated malware neutralization using custom Active Response bash scripts.
 *   **Zero Packet Loss**: Maintained 100% system fidelity with zero dropped packets during high-traffic attack simulations on legacy hardware.
 
-## 🏗️ Architecture & Environment
+## Architecture & Environment
 The lab was built on a physically isolated `10.10.10.0/24` subnet to safely execute live malware and offensive tools. 
 
 | Node Role | IP Address | Hardware / OS & Tools |
@@ -22,7 +22,7 @@ The lab was built on a physically isolated `10.10.10.0/24` subnet to safely exec
 | **SME-Asset-Agent** | `10.10.10.90` | 16GB RAM / Ubuntu 22.04 Headless (Wazuh Agent, Suricata, Cowrie) |
 | **Attacker** | `10.10.10.100` | 8GB RAM / Kali Linux (Offensive machine) |
 
-## ⚔️ Attack Scenarios & Automated Defenses
+## Attack Scenarios & Automated Defenses
 
 Explore the folders below to see the configuration files, custom rules, and bash scripts used to defend against each phase of the cyber kill chain:
 
