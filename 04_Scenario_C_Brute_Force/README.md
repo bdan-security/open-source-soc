@@ -12,26 +12,34 @@ From the Kali Linux attacker machine (`10.10.10.100`), a dictionary-based brute-
 # Executing a brute-force attack against the administrative SSH port
 hydra -l srv-admin -P /usr/share/wordlists/rockyou.txt ssh://10.10.10.90:2222
 ````
-![Hydra Brute Force Attack](../Images/Scenario_C_Hydra_Attack.png)
+
 > The Kali Linux attacker aggressively cycling through credentials in an attempt to breach the administrative SSH service.
 
 ## Detection & Automated Containment
 
-The Wazuh agent actively monitors system authentication logs (e.g., `/var/log/auth.log`). When multiple authentication failures occur in rapid succession, Wazuh triggers a high-severity alert.
+The Wazuh agent actively monitors system authentication logs. However, to actively stop the threat, the SIEM was configured to execute a custom **Active Response (AR)** script upon detecting the brute-force threshold.
 
-### Active Response Trigger
+### 1. The Custom Enforcement Script
 
-Rather than relying on manual analyst intervention, the SIEM was configured to execute an **Active Response (AR)** script upon detecting the brute-force threshold.
+A custom bash script (`cowrie-block.sh`) was engineered to parse the JSON alert data from Wazuh, extract the attacker's IP address, and dynamically inject a `DROP` rule into the local `iptables` firewall.
 
-1. **Detection:** Wazuh identifies rule ID `5712` (SSHD brute force trying to get access to the system).
-2. **Execution:** The Wazuh Manager issues a command to the Wazuh Agent on the target asset.
-3. **Containment:** The agent runs the `firewall-drop` script, dynamically adding the attacker's IP (`10.10.10.100`) to the local UFW/iptables blocklist.
+> The custom Active Response bash script designed to act as the enforcement officer, routing malicious IPs to `iptables`.
 
-![Wazuh Brute Force Detection](../Images/Scenario_C_Wazuh_Detection.png)
-> The Wazuh dashboard flagging the authentication failures and confirming the execution of the Active Response firewall-drop script.
+### 2. Wazuh Configuration (`ossec.conf`)
 
-![Attacker IP Blocked](../Images/Scenario_C_Active_Response_Block.png)
-> Verification from the asset's terminal showing the local firewall successfully dropping all further traffic from the attacker's IP address.
+The Wazuh manager was configured to trigger this specific response whenever a high-severity brute-force rule (e.g., Rule ID `100100`) was tripped.
+
+> The `<active-response>` block inside `ossec.conf` linking the detection rule to the firewall-drop executable.
+
+### 3. Verifying the Block (Defender & Attacker Perspectives)
+
+When the Hydra attack breached the threshold, the Active Response fired immediately. The logs on the defender's asset confirmed the IP `10.10.10.100` was routed to `iptables`.
+
+> The defender's asset terminal verifying the Active Response log and confirming the `DROP` rules were successfully injected into `iptables`.
+
+From the attacker's perspective, the connection was abruptly severed. Hydra failed due to connection errors, and a subsequent ping to the target resulted in 100% packet loss, confirming total network isolation.
+
+> The Kali Linux terminal showing the brute-force tool failing and all subsequent network traffic (ICMP pings) being dropped by the target.
 
 ## Performance Metrics: Mean Time to Respond (MTTR)
 
@@ -47,7 +55,6 @@ To measure the effectiveness of the automated containment, both the **Mean Time 
 * **Average MTTR:** **3.33 seconds**
 * **Verdict:** **Superior**. The architecture successfully neutralized an active brute-force campaign in under 4 seconds, practically eliminating the window of opportunity for credential compromise.
 
-![MTTR Proof Table](../Images/Scenario_C_MTTR_Proof.png)
 > Empirical log timestamps demonstrating the rapid sequence from initial detection to automated firewall containment.
 
 ## Next Steps
