@@ -227,10 +227,6 @@ The five detection measurements were used to calculate the average Mean Time to 
                     5
 ```
 
-### Average MTTD
-
-# **1.27 seconds**
-
 # Performance Verdict
 
 The architecture achieved an average Mean Time to Detect of:
