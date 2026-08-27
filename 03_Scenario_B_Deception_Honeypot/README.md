@@ -1,443 +1,141 @@
 # Scenario B: Deception Technology & Honeypot Interaction (Cowrie)
 
-This scenario introduces deception technology into the SME security architecture through the deployment and testing of the **Cowrie SSH Honeypot**.
+This scenario introduces **deception technology** into the SME security architecture by deploying the **Cowrie SSH Honeypot** to intercept malicious activity, capture attacker credentials, and feed threat intelligence into the central **Wazuh SIEM**.
 
-Traditional security monitoring relies heavily on detecting known malicious patterns, suspicious behaviour, and rule-based indicators. Deception technology provides an additional layer of visibility by deliberately presenting an attractive target to potential attackers and recording their interactions.
+## Architecture & Port Redirection Strategy
 
-The objective of this scenario was to intercept malicious SSH activity, record attacker interactions, capture attempted credentials, and forward the resulting threat intelligence to the central Wazuh SIEM.
+To ensure the deception mechanisms did not interfere with legitimate administrative workflows, a **port separation strategy** was implemented on the SME asset (`10.10.10.90`):
 
-The scenario demonstrates the integration of:
+* **Administrative SSH:** Moved to port `2222` for authorised system administration.
+* **Cowrie Honeypot:** Configured internally on port `2223`.
+* **Network Redirection:** Inbound traffic targeting the standard SSH port `22` is transparently redirected via `iptables` into the Cowrie honeypot.
 
-* **Kali Linux** as the attacker platform
-* **iptables** for transparent network redirection
-* **Cowrie** as the SSH deception environment
-* **Suricata** for network-level monitoring
-* **Wazuh Agent** for log collection
-* **Wazuh Manager** for centralised correlation and alerting
+### Port Configuration
 
-# Scenario Objective
+| Service            |   Port | Purpose                               |
+| ------------------ | -----: | ------------------------------------- |
+| Standard SSH       |   `22` | External attack/deception entry point |
+| Administrative SSH | `2222` | Legitimate system administration      |
+| Cowrie Honeypot    | `2223` | Deception environment                 |
 
-The objective of this scenario was to determine whether the integrated security architecture could:
-
-1. Separate legitimate administrative SSH access from malicious external SSH activity.
-2. Transparently redirect traffic targeting the standard SSH port into a honeypot.
-3. Allow attackers to interact with a controlled deception environment.
-4. Capture attempted usernames and passwords.
-5. Record commands executed by the attacker.
-6. Collect structured Cowrie event logs.
-7. Forward honeypot telemetry to the Wazuh SIEM.
-8. Measure the Mean Time to Detect (MTTD) for honeypot interactions.
-
-The primary objective was to ensure that attacker activity directed at the exposed SSH service could be monitored and investigated without exposing the legitimate administrative service.
-
-# Architecture & Port Redirection Strategy
-
-The Cowrie honeypot was deployed on the SME asset:
-
-```text
-10.10.10.90
-```
-
-To ensure that the honeypot did not interfere with legitimate administrative access, a deliberate port separation strategy was implemented.
-
-| Service                  | Port   | Purpose                                     |
-| :----------------------- | :----- | :------------------------------------------ |
-| **Administrative SSH**   | `2222` | Legitimate authorised system administration |
-| **Cowrie Honeypot**      | `2223` | Internal Cowrie deception service           |
-| **External SSH Traffic** | `22`   | Redirected into the Cowrie honeypot         |
-
-This configuration allowed legitimate administrators to access the system through port `2222` while traffic targeting the standard SSH port `22` was redirected into the deception environment.
-
-# Network Redirection Strategy
-
-Attackers commonly target the default SSH port:
-
-```text
-22
-```
-
-Rather than exposing the legitimate administrative SSH service on this port, inbound traffic was redirected using `iptables`.
-
-The redirection rule was:
+### Port 22 → Cowrie Redirection
 
 ```bash
-# iptables rule redirecting inbound port 22 traffic to the Cowrie honeypot on port 2223
+# iptables rule redirecting inbound port 22 traffic to the Cowrie honeypot (port 2223)
 sudo iptables -t nat -A PREROUTING -p tcp --dport 22 -j REDIRECT --to-port 2223
 ```
 
-The resulting traffic flow was:
+This configuration allows attackers targeting the conventional SSH port to interact with Cowrie without exposing the legitimate administrative SSH service.
 
-```text
-                    ATTACKER
-                 10.10.10.100
-                        │
-                        │ SSH Connection
-                        │ Destination: Port 22
-                        ▼
-             ┌─────────────────────┐
-             │      iptables       │
-             │  PREROUTING NAT     │
-             └──────────┬──────────┘
-                        │
-                        │ Transparent Redirect
-                        ▼
-                    Port 2223
-                        │
-                        ▼
-             ┌─────────────────────┐
-             │   COWRIE HONEYPOT   │
-             │  Deception Service  │
-             └─────────────────────┘
-                        │
-                        │ Attacker Activity
-                        ▼
-                  cowrie.json
-                        │
-                        ▼
-                WAZUH AGENT
-                        │
-                        ▼
-                WAZUH MANAGER
-                        │
-                        ▼
-                 SIEM ALERTS
-```
+## Attack Execution & Deception Interaction
 
-From the perspective of the attacker, the connection appears to be directed towards a standard SSH service.
+From the **Kali Linux attacker machine** (`10.10.10.100`), an attack was launched against the target asset's standard SSH port.
 
-In reality, the attacker is interacting with the Cowrie deception environment.
-
-# Attack Execution & Deception Interaction
-
-The attack was performed from the Kali Linux attacker machine:
-
-| System         | Role                   | IP Address     |
-| :------------- | :--------------------- | :------------- |
-| **Kali Linux** | Attacker               | `10.10.10.100` |
-| **SME Asset**  | Target / Honeypot Host | `10.10.10.90`  |
-
-The attacker attempted to connect to the target using the standard SSH port.
+### SSH Connection Attempt
 
 ```bash
 # Attacker attempting an SSH connection to the perceived production server
 ssh root@10.10.10.90
 ```
 
-Because the connection targeted port `22`, the `iptables` PREROUTING rule transparently redirected the traffic to Cowrie on port `2223`.
+../Images/Scenario_B_Cowrie_Interaction.png
+> **Figure B.1:** The Kali Linux attacker successfully connects to port `22`, unaware that the connection has been transparently redirected into the Cowrie deception environment.
 
-The attacker therefore believed they were interacting with a standard SSH service while all activity was recorded within the controlled deception environment.
+The attacker therefore believes they are interacting with the production SSH service, while the actual interaction is being handled by the honeypot.
 
-![Cowrie Honeypot Interaction](../Images/Scenario_B_Cowrie_Interaction.png)
+## Detection & Telemetry Integration
 
->  The Kali Linux attacker successfully connecting to port 22, unaware that the connection has been transparently redirected into the Cowrie deception environment.
-
-# Cowrie Deception Environment
-
-Once connected, the attacker can interact with the simulated SSH environment.
-
-Cowrie records a variety of attacker behaviours, including:
+Cowrie generates structured JSON event logs through `cowrie.json`. These events record attacker activity and metadata, including:
 
 * Source IP addresses
-* Session identifiers
 * Attempted usernames
 * Attempted passwords
-* Successful authentication events
-* Failed authentication events
-* Commands executed during the session
-* Files requested or downloaded
-* Session duration
-* Terminal interactions
+* Commands executed within the honeypot
+* SSH connection events
+* Session activity
 
-This information provides valuable threat intelligence because attacker behaviour can be analysed without exposing a legitimate production system.
+The **Wazuh Agent** monitors the Cowrie log files and forwards the telemetry to the central **Wazuh Manager**, where the events can be correlated, analysed, and used for real-time alerting.
 
-# Detection & Telemetry Integration
-
-The value of a honeypot is significantly increased when its telemetry is integrated into the wider security monitoring infrastructure.
-
-Rather than leaving Cowrie logs isolated on the host, the structured event data was forwarded to the central Wazuh SIEM.
-
-Cowrie generates structured JSON events.
-
-The primary event log used for analysis is:
+### Telemetry Flow
 
 ```text
-cowrie.json
-```
-
-The telemetry flow is:
-
-```text
-Attacker Interaction
+Kali Linux Attacker
         │
+        │ SSH → TCP/22
         ▼
-Cowrie Honeypot
+SME Asset (10.10.10.90)
         │
+        │ iptables REDIRECT
         ▼
-cowrie.json
+Cowrie Honeypot (TCP/2223)
         │
+        │ cowrie.json
         ▼
 Wazuh Agent
         │
+        │ Log Forwarding
         ▼
-Log Parsing & Event Collection
+Wazuh Manager / SIEM
         │
         ▼
-Wazuh Manager
-        │
-        ▼
-Correlation & Alert Generation
-        │
-        ▼
-Wazuh Dashboard
+Detection & Alerting
 ```
+../Images/Scenario_B_Wazuh_Cowrie_Logs.png
+> **Figure B.2:** Raw Cowrie event logs successfully ingested and indexed by the Wazuh SIEM, demonstrating attacker activity tracking and metadata extraction.
 
-This integration ensures that attacker activity captured by the deception layer becomes part of the centralised security monitoring process.
+## Performance Metrics: Mean Time to Detect (MTTD)
 
-# Detection Rules & Telemetry Processing
+Detection performance was evaluated by comparing the **attack start timestamp** against the **SIEM alert generation timestamp**.
 
-To identify unauthorised interactions with the honeypot, custom detection logic was integrated into the security architecture.
-
-The detection process consisted of two layers.
-
-## 1. Suricata Network Detection
-
-Suricata monitors the network activity directed towards the SSH service.
-
-The objective of this layer is to identify TCP connections targeting:
-
-```text
-Port 22
-```
-
-This provides network-level visibility into attempts to access the exposed SSH service.
-
-The network telemetry can be correlated with the subsequent Cowrie interaction.
-
-## 2. Wazuh Cowrie Log Parsing
-
-Cowrie generates structured JSON logs containing attacker metadata.
-
-The Wazuh integration parses relevant fields from the Cowrie events, including:
-
-* `src_ip`
-* Attempted usernames
-* Attempted passwords
-* Session information
-* Commands executed by the attacker
-
-This allows the Wazuh SIEM to transform raw honeypot events into searchable and actionable security telemetry.
-
-![Cowrie Events in Wazuh](../Images/Scenario_B_Wazuh_Cowrie_Logs.png)
-> Raw Cowrie event logs successfully ingested and indexed by the Wazuh SIEM, showing attacker activity tracking and metadata extraction.
-
-# Example Security Telemetry
-
-The honeypot interaction generates several layers of security information.
-
-At the network level:
-
-```text
-Source IP:      10.10.10.100
-Destination IP: 10.10.10.90
-Destination Port: 22
-```
-
-Following the transparent redirection:
-
-```text
-iptables PREROUTING
-        │
-        ▼
-Redirected to Port 2223
-        │
-        ▼
-Cowrie Honeypot
-```
-
-Cowrie then generates structured events containing information about the attacker interaction.
-
-The resulting telemetry can be forwarded to Wazuh for centralised investigation.
-
-# Centralised SIEM Visibility
-
-Once Cowrie events are collected by the Wazuh Agent, they are forwarded to the Wazuh Manager.
-
-The Wazuh Dashboard provides centralised visibility into the honeypot interaction.
-
-Security analysts can investigate information such as:
-
-* Source IP addresses
-* Authentication attempts
-* Attempted usernames
-* Attempted passwords
-* Commands executed
-* Session events
-* Honeypot activity over time
-
-Centralising this information reduces the need to manually access the Cowrie host when investigating attacker behaviour.
-
-# Performance Metrics - Mean Time to Detect (MTTD)
-
-The Mean Time to Detect was measured to determine how quickly the security architecture identified honeypot interactions.
-
-The detection lag was calculated by comparing:
-
-1. The time at which the attacker interaction began.
-2. The time at which the corresponding security alert was generated.
-
-The calculation was:
+The detection lag was calculated using:
 
 ```text
 Detection Lag = Alert Time - Attack Start Time
 ```
 
-# Detection Measurements
+### MTTD Results
 
-| Test | Incident Type       | Attack Start   | Alert Time     | Detection Lag     |
-| :--- | :------------------ | :------------- | :------------- | :---------------- |
-| 1    | Honeypot Connection | `22:38:10.000` | `22:38:12.019` | **2.019 seconds** |
-| 2    | Honeypot Connection | `22:38:29.000` | `22:38:30.174` | **1.174 seconds** |
-| 3    | Honeypot Connection | `22:40:24.000` | `22:40:26.163` | **2.163 seconds** |
-| 4    | Honeypot Connection | `22:40:25.000` | `22:40:26.272` | **1.272 seconds** |
-| 5    | Honeypot Connection | `22:40:26.000` | `22:40:28.313` | **2.313 seconds** |
+|  Test | Incident Type       | Attack Start (`Tstart`) | Alert Time (`Tdetect`) | Detection Lag (MTTD) |
+| ----: | ------------------- | ----------------------- | ---------------------- | -------------------: |
+| **1** | Honeypot Connection | `22:38:10.000`          | `22:38:12.019`         |    **2.019 seconds** |
+| **2** | Honeypot Connection | `22:38:29.000`          | `22:38:30.174`         |    **1.174 seconds** |
+| **3** | Honeypot Connection | `22:40:24.000`          | `22:40:26.163`         |    **2.163 seconds** |
+| **4** | Honeypot Connection | `22:40:25.000`          | `22:40:26.272`         |    **1.272 seconds** |
+| **5** | Honeypot Connection | `22:40:26.000`          | `22:40:28.313`         |    **2.313 seconds** |
 
-# Average Mean Time to Detect
+### Results
 
-The five detection measurements were used to calculate the average Mean Time to Detect.
+* **Average MTTD:** **1.81 seconds**
+* **Verdict:** **Superior** threat intelligence generation speed, with attackers interacting with the deception layer being detected in near real time.
 
-```text
-2.019 + 1.174 + 2.163 + 1.272 + 2.313
-───────────────────────────────────────
-                    5
-```
+The results demonstrate that the Cowrie → Wazuh integration provides rapid visibility into malicious SSH activity, allowing suspicious interactions to be identified shortly after they occur.
 
-## Average MTTD: **1.81 seconds**
+## Security Capabilities Summary
 
-# Performance Verdict
-
-The architecture achieved an average Mean Time to Detect of:
-
-> ## **1.81 seconds**
-
-This demonstrates near real-time detection and centralisation of attacker activity within the Cowrie deception environment.
-
-The results show that the integrated architecture can rapidly identify interactions with the honeypot and forward the resulting threat intelligence to the central SIEM.
-
-This provides security teams with early visibility into suspicious SSH activity and potential brute-force attempts.
-
-# Detection Performance Summary
-
-| Security Capability                  | Result                                              |
-| :----------------------------------- | :-------------------------------------------------- |
+| Security Capability                  | Implementation Result                               |
+| ------------------------------------ | --------------------------------------------------- |
 | **SSH Traffic Redirection**          | Successfully redirected port `22` traffic to Cowrie |
-| **Legitimate Administrative Access** | Preserved on port `2222`                            |
-| **Honeypot Interaction**             | Successfully captured                               |
-| **Attacker Activity Logging**        | Successfully recorded                               |
-| **Credential Capture**               | Attempted credentials recorded                      |
-| **Centralised Telemetry**            | Forwarded to Wazuh                                  |
-| **Average MTTD**                     | **1.81 seconds**                                    |
-| **Detection Performance**            | Near real-time                                      |
+| **Legitimate Administrative Access** | Preserved securely on port `2222`                   |
+| **Credential & Command Capture**     | Successfully logged attempted brute-force patterns  |
+| **Centralised Telemetry**            | Automated ingestion into Wazuh SIEM                 |
+| **Average MTTD**                     | **1.81 seconds** — near real-time detection         |
 
-# Security Capabilities Demonstrated
+## Security Outcome
 
-This scenario demonstrates practical experience with:
+The implementation successfully demonstrated how **deception technology can be integrated into an SME security architecture without disrupting legitimate administration**.
 
-* Deception technology
-* Honeypot deployment
-* Cowrie configuration
-* SSH security architecture
-* Port redirection
-* `iptables` NAT configuration
-* Network traffic redirection
-* Attacker behaviour analysis
-* Threat intelligence collection
-* JSON log analysis
-* Wazuh log ingestion
-* SIEM correlation
-* Network security monitoring
-* Detection engineering
-* Security telemetry integration
-* Mean Time to Detect measurement
+The combination of **iptables port redirection, Cowrie honeypot telemetry, Wazuh Agent log collection, and centralised SIEM alerting** created an additional detection layer capable of:
 
-# Attack & Detection Workflow
+1. Attracting attackers targeting the standard SSH service.
+2. Preventing direct interaction with the legitimate administrative SSH service.
+3. Capturing attacker credentials and commands.
+4. Generating structured security telemetry.
+5. Forwarding events to the central Wazuh SIEM.
+6. Detecting malicious interaction with an average MTTD of **1.81 seconds**.
 
-The complete detection process can be summarised as:
+This demonstrates the value of deception technology as a **low-cost additional detection capability for SME environments**.
 
-```text
-Attacker targets SSH Port 22
-            │
-            ▼
-iptables PREROUTING intercepts traffic
-            │
-            ▼
-Connection redirected to Port 2223
-            │
-            ▼
-Cowrie Honeypot receives connection
-            │
-            ▼
-Attacker interacts with simulated environment
-            │
-            ▼
-Credentials and commands are recorded
-            │
-            ▼
-Cowrie generates structured JSON events
-            │
-            ▼
-Wazuh Agent collects telemetry
-            │
-            ▼
-Wazuh Manager processes the event
-            │
-            ▼
-Security alert and attacker metadata
-            │
-            ▼
-Wazuh Dashboard
-```
-
-# Image Locations
-
-The following image locations are referenced within this scenario:
-
-```text
-../Images/Scenario_B_Cowrie_Interaction.png
-../Images/Scenario_B_Wazuh_Cowrie_Logs.png
-```
-
-Expected repository structure:
-
-```text
-Open-Source-SME-Security-Architecture/
-│
-├── Images/
-│   ├── Scenario_B_Cowrie_Interaction.png
-│   └── Scenario_B_Wazuh_Cowrie_Logs.png
-│
-├── 01_Lab_Setup/
-│   └── README.md
-│
-├── 02_Scenario_A_Reconnaissance/
-│   └── README.md
-│
-├── 03_Scenario_B_Deception_Honeypot/
-│   └── README.md
-│
-├── 04_Scenario_C_Brute_Force/
-│
-├── 05_Scenario_D_File_Integrity/
-│
-└── 06_Scenario_E_Malware_Drop/
-```
-
-# Next Steps
-
-The deception layer demonstrated that suspicious SSH activity targeting the standard SSH port can be transparently redirected into a controlled honeypot environment.
-
-The resulting attacker activity is captured, converted into security telemetry, and forwarded to the central Wazuh SIEM.
-
-Continue to:
+## Next Steps
 
 * [**← Return to Scenario A: Network Reconnaissance**](../02_Scenario_A_Reconnaissance)
 * [**Proceed to Scenario C: Brute-Force & Active Response Countermeasures →**](../04_Scenario_C_Brute_Force)
